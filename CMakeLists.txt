@@ -2,7 +2,13 @@
 cmake_minimum_required(VERSION 3.16)
 
 # Nombre del proyecto - lenguajes
+
 project(Calculadora LANGUAGES CXX)
+
+# Enable Qt's automoc/uic/rcc for QObject (Q_OBJECT) classes
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
 
 #version de compilador
 set(CMAKE_CXX_STANDARD 17)
@@ -20,7 +26,9 @@ find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
 # define cuales son los ejecutables
 add_executable(calculator
-
+  src/main.cpp
+  src/UICalculator.cpp
+  src/engine.cpp
 )
 
 # Enlaza el compilador con la libreria de Qt
