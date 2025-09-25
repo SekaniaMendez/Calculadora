@@ -107,7 +107,7 @@ cmake --build build
 == Video Demostration
 The following video demonstrates the calculator in action and what you will see in the debug window
 
-video::VideoEjemplo.mov[options="controls",width=640,height=360]
+video::VideoEjemplo.mp4[options="controls",width=640,height=360]
 
 == License
 This project is provided for educational purposes by Giovanni Daniel Mendez Sanchez (B54354). Extend and adapt as needed.
