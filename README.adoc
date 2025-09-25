@@ -104,10 +104,10 @@ cmake --build build
 
 * Use `Clr` to reset the calculator or `Back` to remove the last character.
 
-== Screenshot
-The following image shows an example of how the calculator looks when running:
+== Video Demostration
+The following video demonstrates the calculator in action and what you will see in the debug window
 
-image::Ejemplo.png[Calculator Example,align=center,width=400]
+video::VideoEjemplo.mov[options="controls",width=640,height=360]
 
 == License
 This project is provided for educational purposes by Giovanni Daniel Mendez Sanchez (B54354). Extend and adapt as needed.
