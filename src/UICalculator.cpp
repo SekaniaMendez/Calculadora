@@ -326,14 +326,49 @@ static inline Engine::Op fromCode(int code) {
 /// Commits the current number, sets the operator in the engine, and prepares
 /// for the next operand.
 void UICalculator::onOperatorPressed(int opCode) {
-  if (!engine_)
-    return;
-  // Store current entry into value1_/value2_
-  commitCurrentNumber();
-  // Ensure engine knows v1
-  if (!engine_->hasV1())
-    engine_->setValue1(value1_);
-  engine_->setOp(fromCode(opCode));
+  {
+    if (!engine_)
+      return;
+
+    // Commit current display into the active operand
+    commitCurrentNumber();
+
+    // Ensure engine has v1
+    if (!engine_->hasV1()) {
+      engine_->setValue1(value1_);
+    }
+
+    const bool hasPrevOp = (engine_->op() != Engine::Op::None);
+    const bool readyForChain =
+        hasPrevOp && engine_->hasV1() && engine_->hasV2();
+
+    // Only chain-evaluate if a previous operator exists AND both operands are
+    // present
+    if (readyForChain) {
+      auto res = engine_->evaluate();
+      if (res.has_value()) {
+        long double r = *res;
+        if (symbolShower)
+          symbolShower->setText(QString::number(static_cast<double>(r)));
+        // Carry result forward as new v1 and keep capturing for next v2
+        value1_ = r;
+        value2_ = 0.0L;
+        enteringFirst_ = false;
+        engine_->clear();
+        engine_->setValue1(value1_);
+      } else {
+        if (symbolShower)
+          symbolShower->setText("Error");
+        enteringFirst_ = true;
+        value1_ = value2_ = 0.0L;
+        engine_->clear();
+        return;
+      }
+    }
+
+    // Set (or replace) the pending operator to the new one
+    engine_->setOp(fromCode(opCode));
+  }
 }
 
 /// @brief Handles the equals button press to evaluate the current expression.
@@ -448,19 +483,36 @@ void UICalculator::onBinPressed() {
 /// Uses Engine::Random, displays the generated value in decimal, and prepares
 /// it as value1 for chaining operations.
 void UICalculator::onRandomPressed() {
-  if (!engine_ || !symbolShower)
-    return;
-  engine_->clear();
-  engine_->setOp(Engine::Op::Random);
-  auto res = engine_->evaluate();
-  if (res.has_value()) {
+  {
+    if (!engine_ || !symbolShower)
+      return;
+
+    // Detect if there is a pending binary operator with a confirmed first
+    // operand
+    const bool hasPendingOp =
+        (engine_->op() != Engine::Op::None) && engine_->hasV1();
+
+    // Generate a random value without disturbing current op/state
+    auto res = engine_->random();
+    if (!res.has_value())
+      return;
     long double r = *res;
+
+    // Show it
     symbolShower->setText(QString::number(static_cast<double>(r)));
-    // Prepare state: treat random as the first operand
-    value1_ = r;
-    value2_ = 0.0L;
-    enteringFirst_ = false; // next typed number becomes value2_
-    engine_->clear();
-    engine_->setValue1(value1_);
+
+    if (hasPendingOp) {
+      // We already have v1 and an operator: treat Random as v2
+      value2_ = r;
+      enteringFirst_ = false;      // ensure subsequent commit targets v2
+      engine_->setValue2(value2_); // keep existing op intact
+    } else {
+      // No operator pending: treat Random as v1 and prepare for operator next
+      value1_ = r;
+      value2_ = 0.0L;
+      enteringFirst_ = true; // ensure onOperatorPressed commits as value1
+      engine_->clear();      // start fresh with v1 only
+      engine_->setValue1(value1_);
+    }
   }
 }
