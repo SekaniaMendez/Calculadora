@@ -1,4 +1,4 @@
-/****
+/**
  * @file UICalculator.h
  * @brief Declaration of the UICalculator class (main application window).
  *
@@ -12,6 +12,7 @@
 #pragma once
 
 #include <QString>
+#include <QStringList>
 #include <QWidget>
 
 // Lightweight forward declarations to keep the header minimal
@@ -147,8 +148,10 @@ private:
   // Utility / operator buttons
   QPushButton *btnClr = nullptr; ///< Clear (reset display and input state).
   QPushButton *btnCE = nullptr; ///< Clear (reset only the number been entered).
-  QPushButton *btnBck = nullptr;     ///< Backspace (remove one character).
-  QPushButton *btnRan = nullptr;     ///< (Optional) helper button (Rnd).
+  QPushButton *btnBck = nullptr; ///< Backspace (remove one character).
+  QPushButton *btnRan = nullptr; ///< (Optional) helper button (Rnd).
+  QLineEdit *editRandomMax =
+      nullptr; ///< Max bound for Random (interpreted as |max|).
   QPushButton *btnEql = nullptr;     ///< Equals (=) triggers evaluation.
   QPushButton *btnSub = nullptr;     ///< Subtraction (−).
   QPushButton *btnAdd = nullptr;     ///< Addition (+).
@@ -165,4 +168,6 @@ private:
   bool enteringFirst_ =
       true;                  ///< true while filling value1_, false for value2_.
   Engine *engine_ = nullptr; ///< Calculation engine managed by the UI.
+
+  QStringList history_; ///< Simple history log of operations and conversions.
 };

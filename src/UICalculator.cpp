@@ -109,7 +109,7 @@ void UICalculator::createUtilityAndOperatorButtons() {
 
   // Create all buttons (no parent; layout will reparent)
   if (!btnClr)
-    btnClr = new QPushButton("Clr");
+    btnClr = new QPushButton("Clear");
   if (!btnBck)
     btnBck = new QPushButton("<-");
   if (!btnCE)
@@ -126,6 +126,12 @@ void UICalculator::createUtilityAndOperatorButtons() {
     btnEql = new QPushButton("=");
   if (!btnRan)
     btnRan = new QPushButton("Random");
+  // Create input for Random max (optional user-specified upper bound)
+  if (!editRandomMax) {
+    editRandomMax = new QLineEdit(this);
+    editRandomMax->setPlaceholderText("Max");
+    editRandomMax->setMaximumWidth(80);
+  }
   if (!btnConvert)
     btnConvert = new QPushButton("Convert");
 
@@ -148,6 +154,7 @@ void UICalculator::createUtilityAndOperatorButtons() {
   qDebug() << "[UICalculator] placing tools row (Convert/Rnd)";
   btnOrganizer->addWidget(btnConvert, 6, 0);
   btnOrganizer->addWidget(btnRan, 6, 1);
+  btnOrganizer->addWidget(editRandomMax, 6, 2);
 
   // Connections
   connect(btnClr, &QPushButton::clicked, this, [this] { onClearPressed(); });
@@ -436,38 +443,52 @@ QString UICalculator::formatValue(long double v, int baseCode) const {
 /// Uses Engine::Random, displays the generated value in decimal, and prepares
 /// it as value1 for chaining operations.
 void UICalculator::onRandomPressed() {
-  {
-    if (!engine_ || !symbolShower)
-      return;
+  if (!engine_ || !symbolShower)
+    return;
 
-    // Detect if there is a pending binary operator with a confirmed first
-    // operand
-    const bool hasPendingOp =
-        (engine_->op() != Engine::Op::None) && engine_->hasV1();
-
-    // Generate a random value without disturbing current op/state
-    auto res = engine_->random();
-    if (!res.has_value())
-      return;
-    long double r = *res;
-
-    // Show it
-    symbolShower->setText(QString::number(static_cast<double>(r)));
-
-    if (hasPendingOp) {
-      // We already have v1 and an operator: treat Random as v2
-      value2_ = r;
-      enteringFirst_ = false;      // ensure subsequent commit targets v2
-      engine_->setValue2(value2_); // keep existing op intact
-    } else {
-      // No operator pending: treat Random as v1 and prepare for operator next
-      value1_ = r;
-      value2_ = 0.0L;
-      enteringFirst_ = true; // ensure onOperatorPressed commits as value1
-      engine_->clear();      // start fresh with v1 only
-      engine_->setValue1(value1_);
+  // Read optional max from the edit box; default to 999999 if empty/invalid
+  long long max = 999999; // default
+  if (editRandomMax) {
+    bool ok = false;
+    const QString t = editRandomMax->text().trimmed();
+    if (!t.isEmpty()) {
+      long long v = t.toLongLong(&ok, 10);
+      if (ok)
+        max = (v < 0 ? -v : v); // absolute value if negative
     }
   }
+
+  // Detect if there is a pending binary operator with a confirmed first operand
+  const bool hasPendingOp =
+      (engine_->op() != Engine::Op::None) && engine_->hasV1();
+
+  // Generate a random value in [0, |max|]
+  auto res = engine_->random(max);
+  if (!res.has_value())
+    return;
+  long double r = *res;
+
+  // Show it
+  symbolShower->setText(QString::number(static_cast<double>(r)));
+
+  if (hasPendingOp) {
+    // We already have v1 and an operator: treat Random as v2
+    value2_ = r;
+    enteringFirst_ = false;      // ensure subsequent commit targets v2
+    engine_->setValue2(value2_); // keep existing op intact
+  } else {
+    // No operator pending: treat Random as v1 and prepare for operator next
+    value1_ = r;
+    value2_ = 0.0L;
+    enteringFirst_ = true; // next op press commits as v1
+    engine_->clear();      // start fresh with v1 only
+    engine_->setValue1(value1_);
+  }
+
+  // Optional: log to history if available
+  history_ << QString("Random(0..%1) -> %2")
+                  .arg(QString::number(max))
+                  .arg(QString::number(static_cast<double>(r)));
 }
 
 /// @brief Convert current display value to Hex, Oct, Bin and show one's/two's

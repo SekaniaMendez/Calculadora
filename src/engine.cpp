@@ -170,17 +170,18 @@ std::optional<long double> Engine::toBin() const {
 }
 
 /**
- * @brief Generate a random number for the calculator.
- *
- * Currently returns an integer in [0, 999999]. The UI may format this value
- * or adjust the range as needed.
- *
- * @return A random value as long double.
+ * @brief Generate a random number between 0 and |max|.
+ * @param max Upper bound (inclusive/exclusive depending on distribution).
+ * @return A random value between 0 and abs(max).
  */
-std::optional<long double> Engine::random() const {
+std::optional<long double> Engine::random(long long int max) const {
+  if (max == 0)
+    return 0.0L;
+  long long int upper = std::llabs(max);
+
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_int_distribution<long long> dist(0, 999999);
+  std::uniform_int_distribution<long long> dist(0, upper);
   return static_cast<long double>(dist(gen));
 }
 
@@ -209,7 +210,7 @@ std::optional<long double> Engine::evaluate() const {
   case Op::ToBin:
     return toBin();
   case Op::Random:
-    return random();
+    return random(999999); // default max if not specified
   case Op::None:
   default:
     return std::nullopt;

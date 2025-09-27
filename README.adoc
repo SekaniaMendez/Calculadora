@@ -18,11 +18,17 @@ image::Ejemplo.png[Calculator Example,align=center,width=400]
 
 == Features
 * **Basic arithmetic**: Addition, subtraction, multiplication, division.
-* **Base conversion**:
-** Decimal (Dec)
-** Hexadecimal (Hex)
-** Octal (Oct)
-** Binary (Bin)
+* Base conversion
+** A single **Convert** button is available instead of separate Hex/Oct/Dec buttons.
+** Pressing **Convert** opens a new window where the current number is shown in:
+*** Binary
+*** Hexadecimal
+*** Octal
+*** One's complement
+*** Two's complement (with minimal bit-length representation).
+
+image::conversionExample.png[Conversion Example,align=center,width=400]
+
 * **Random number generation**: Produces a random integer (0–999999).
 * **Keyboard input support**:
 ** Digits (0–9)
@@ -35,9 +41,9 @@ a handheld calculator.
 * **UI built with Qt**:
 ** Digit buttons (0–9)
 ** Operator buttons (+, −, ×, ÷, =)
-** Utility buttons (Clr, Back)
+** Utility buttons (Clr, Back, CE)
 ** Base conversion buttons (Dec, Hex, Oct, Bin)
-** Random (Rnd) button
+** Random (Rnd) button with optional maximum value input (default 0–999999)
 
 == Project Structure
 * `src/engine.h` / `src/engine.cpp` ::

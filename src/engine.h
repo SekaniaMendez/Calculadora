@@ -106,10 +106,11 @@ public:
   toBin() const; // value1 passthrough; UI formats base
 
   /**
-   * @brief Generate a random number.
-   * @return A random value (long double).
+   * @brief Generate a random number between 0 and |max|.
+   * @param max Upper bound (absolute value is used if negative).
+   * @return A random value between 0 and abs(max).
    */
-  std::optional<long double> random() const;
+  std::optional<long double> random(long long int max) const;
 
   // --- Dispatch helper using current op (implemented in engine.cpp) ---
   /**
