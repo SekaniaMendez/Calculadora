@@ -76,7 +76,7 @@ a handheld calculator.
 ** Digit buttons (0–9)
 ** Operator buttons (+, −, ×, ÷, =)
 ** Utility buttons (Clear, Back, CE)
-** Base conversion buttons (Dec, Hex, Oct, Bin)
+** Base convert button
 ** Random (Rnd) button with optional maximum value input (default 0–999999)
 
 == Project Structure
