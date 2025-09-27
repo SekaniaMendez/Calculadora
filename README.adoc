@@ -139,7 +139,7 @@ cmake --build build
 * Enter numbers using either the digit buttons or the keyboard.
 * Press an operator (+, −, ×, ÷) to set the operation.
 * Enter the second number and press `=` (or Enter key) to evaluate.
-* Use convert to transform the current number to `Dec`, `Hex`, `Oct`, and `Bin`, also gives the complements(1, 2).
+* Use convert to transform the current number to `Dec`, `Hex`, `Oct`, and `Bin`, also gives the complements.
 * Use `Rnd` to generate a random number.
 
 * Use `Clear` to reset the calculator or `Back` to remove the last character.
