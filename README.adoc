@@ -139,7 +139,7 @@ cmake --build build
 * Enter numbers using either the digit buttons or the keyboard.
 * Press an operator (+, −, ×, ÷) to set the operation.
 * Enter the second number and press `=` (or Enter key) to evaluate.
-* Use `Dec`, `Hex`, `Oct`, or `Bin` to convert the current number to that base.
+* Use convert to transform the current number to `Dec`, `Hex`, `Oct`, and `Bin`.
 * Use `Rnd` to generate a random number.
 
 * Use `Clear` to reset the calculator or `Back` to remove the last character.
