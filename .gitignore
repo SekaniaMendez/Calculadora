@@ -6,6 +6,7 @@
 /Makefile
 /cmake_install.cmake
 /compile_commands.json
+/docs/
 
 # macOS
 .DS_Store

@@ -2,7 +2,7 @@
 :toc:
 :icons: font
 :source-highlighter: coderay
-:revnumber: 1.0
+:revnumber: 1.1
 :revdate: 2025-09-24
 
 
@@ -15,6 +15,34 @@ It provides a graphical user interface (`UICalculator`) and a calculation engine
 (`Engine`) separated into distinct modules for clarity and maintainability.
 
 image::Ejemplo.png[Calculator Example,align=center,width=400]
+== Documentation
+
+This project uses Doxygen for documentation.  
+
+*macOS*::
+- Install Homebrew if not installed: https://brew.sh/
+- Install Doxygen and Graphviz:
+  ```bash
+  brew install doxygen graphviz
+  ```
+*Linux (Ubuntu/Debian)*::
+- Update packages and install:
+  ```bash
+  sudo apt update
+  sudo apt install doxygen graphviz
+  ```
+=== How to generate the documentation
+doxygen Doxyfile
+The documentation will be generated in the `docs/html` folder.  
+To view it, open:
+- macOS: `open docs/html/index.html`
+- Linux: `xdg-open docs/html/index.html`
+- Windows: Double-click `docs/html/index.html`
+
+*Windows*::
+- Download and install Doxygen: https://www.doxygen.nl/download.html
+- (Optional) Install Graphviz: https://graphviz.gitlab.io/_pages/Download/Download_windows.html
+- Ensure `doxygen.exe` is added to the PATH.
 
 == Features
 * **Basic arithmetic**: Addition, subtraction, multiplication, division.
