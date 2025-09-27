@@ -77,7 +77,7 @@ a handheld calculator.
 ** Operator buttons (+, −, ×, ÷, =)
 ** Utility buttons (Clear, Back, CE)
 ** Base convert button
-** Random (Rnd) button with optional maximum value input (default 0–999999)
+** Random button with optional maximum value input (default 0–999999)
 
 == Project Structure
 * `src/engine.h` / `src/engine.cpp` ::
