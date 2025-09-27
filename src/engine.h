@@ -8,6 +8,9 @@
  * The Engine stores two operands and an operator, and exposes per-operation
  * methods to evaluate results. It is intentionally UI-agnostic; formatting and
  * presentation are handled by the UI layer (e.g., UICalculator).
+ *
+ * @author Giovanni Daniel Mendez Sanchez (B54354)
+ * @date 2025-09-24
  */
 class Engine {
 public:

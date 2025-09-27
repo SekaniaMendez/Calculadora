@@ -5,6 +5,9 @@
  * This header defines the Qt Widgets-based UI container. The class manages the
  * display, digit/operator buttons, and keyboard interaction. Arithmetic logic
  * is delegated to the Engine class.
+ *
+ * @author Giovanni Daniel Mendez Sanchez (B54354)
+ * @date 2025-09-24
  */
 #pragma once
 
@@ -104,24 +107,28 @@ private:
   void onEqualsPressed();
 
   /**
-   * @brief Handler for base selection.
-   * @param baseCode 0: decimal, 1: hexadecimal, 2: octal.
-   */
-  void onBasePressed(int baseCode); // 0:Dec 1:Hex 2:Oct
-
-  /**
-   * @brief Handler for binary base conversion.
-   *
-   * Uses Engine::ToBin and formats the result in base-2.
-   */
-  void onBinPressed();
-
-  /**
    * @brief Handler for random number generation.
    *
    * Uses Engine::Random and displays the generated value.
    */
   void onRandomPressed();
+
+  /**
+   * @brief Handler for conversion button. Shows current value in Hex, Oct, Bin,
+   *        and computes one's and two's complement.
+   */
+  void onConvertPressed();
+
+  /**
+   * @brief Clear display and internal state (operands, operator, input mode).
+   */
+  void onClearPressed();
+
+  /**
+   * @brief Clear only the current entry on the display, preserving operator and
+   * stored operands.
+   */
+  void onClearEntryPressed();
 
   /**
    * @brief Format a value for the display in the given base.
@@ -139,17 +146,15 @@ private:
 
   // Utility / operator buttons
   QPushButton *btnClr = nullptr; ///< Clear (reset display and input state).
-  QPushButton *btnBck = nullptr; ///< Backspace (remove one character).
-  QPushButton *btnHex = nullptr; ///< (Optional) switch to hexadecimal view.
-  QPushButton *btnOct = nullptr; ///< (Optional) switch to octal view.
-  QPushButton *btnDec = nullptr; ///< (Optional) switch to decimal view.
-  QPushButton *btnRan = nullptr; ///< (Optional) helper button (Rnd).
-  QPushButton *btnBin = nullptr; ///< (Optional) switch to binary view.
-  QPushButton *btnEql = nullptr; ///< Equals (=) triggers evaluation.
-  QPushButton *btnSub = nullptr; ///< Subtraction (−).
-  QPushButton *btnAdd = nullptr; ///< Addition (+).
-  QPushButton *btnMul = nullptr; ///< Multiplication (×).
-  QPushButton *btnDiv = nullptr; ///< Division (÷).
+  QPushButton *btnCE = nullptr; ///< Clear (reset only the number been entered).
+  QPushButton *btnBck = nullptr;     ///< Backspace (remove one character).
+  QPushButton *btnRan = nullptr;     ///< (Optional) helper button (Rnd).
+  QPushButton *btnEql = nullptr;     ///< Equals (=) triggers evaluation.
+  QPushButton *btnSub = nullptr;     ///< Subtraction (−).
+  QPushButton *btnAdd = nullptr;     ///< Addition (+).
+  QPushButton *btnMul = nullptr;     ///< Multiplication (×).
+  QPushButton *btnDiv = nullptr;     ///< Division (÷).
+  QPushButton *btnConvert = nullptr; ///< Button to trigger conversions.
 
   /// Array of digit buttons (0..9). Entries may be null until created.
   QPushButton *digitButtons[10] = {nullptr};

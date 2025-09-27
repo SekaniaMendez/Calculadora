@@ -7,6 +7,9 @@
  * for creating and managing the calculator's user interface, handling user
  * input via buttons and keyboard, and interacting with the calculation engine
  * to perform arithmetic and base conversion operations.
+ *
+ * @author Giovanni Daniel Mendez Sanchez (B54354)
+ * @date 2025-09-24
  */
 
 #include "UICalculator.h"
@@ -16,6 +19,7 @@
 #include <QString>
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QLineEdit>
+#include <QtWidgets/QMessageBox>
 #include <QtWidgets/QPushButton>
 
 /// @brief Constructor of the User Interface.
@@ -108,8 +112,8 @@ void UICalculator::createUtilityAndOperatorButtons() {
     btnClr = new QPushButton("Clr");
   if (!btnBck)
     btnBck = new QPushButton("<-");
-  if (!btnDec)
-    btnDec = new QPushButton("Dec");
+  if (!btnCE)
+    btnCE = new QPushButton("CE");
   if (!btnDiv)
     btnDiv = new QPushButton("/");
   if (!btnMul)
@@ -120,20 +124,16 @@ void UICalculator::createUtilityAndOperatorButtons() {
     btnAdd = new QPushButton("+");
   if (!btnEql)
     btnEql = new QPushButton("=");
-  if (!btnHex)
-    btnHex = new QPushButton("Hex");
-  if (!btnOct)
-    btnOct = new QPushButton("Oct");
   if (!btnRan)
-    btnRan = new QPushButton("Rnd");
-  if (!btnBin)
-    btnBin = new QPushButton("Bin");
+    btnRan = new QPushButton("Random");
+  if (!btnConvert)
+    btnConvert = new QPushButton("Convert");
 
   // Place them in the grid
   qDebug() << "[UICalculator] placing top row";
   btnOrganizer->addWidget(btnClr, 1, 0);
   btnOrganizer->addWidget(btnBck, 1, 1);
-  btnOrganizer->addWidget(btnDec, 1, 2);
+  btnOrganizer->addWidget(btnCE, 1, 2);
   btnOrganizer->addWidget(btnDiv, 1, 3);
 
   qDebug() << "[UICalculator] placing right column (*,-,+)";
@@ -145,19 +145,12 @@ void UICalculator::createUtilityAndOperatorButtons() {
   btnOrganizer->addWidget(btnEql, 5, 3);
 
   // Optional extra row: show Hex/Oct/Rnd
-  qDebug() << "[UICalculator] placing base row (Hex/Oct/Rnd)";
-  btnOrganizer->addWidget(btnHex, 6, 0);
-  btnOrganizer->addWidget(btnOct, 6, 1);
-  btnOrganizer->addWidget(btnRan, 6, 2);
-  btnOrganizer->addWidget(btnBin, 6, 3);
+  qDebug() << "[UICalculator] placing tools row (Convert/Rnd)";
+  btnOrganizer->addWidget(btnConvert, 6, 0);
+  btnOrganizer->addWidget(btnRan, 6, 1);
 
   // Connections
-  connect(btnClr, &QPushButton::clicked, this, [this] {
-    symbolShower->setText("0");
-    value1_ = 0.0L;
-    value2_ = 0.0L;
-    enteringFirst_ = true;
-  });
+  connect(btnClr, &QPushButton::clicked, this, [this] { onClearPressed(); });
   connect(btnBck, &QPushButton::clicked, this, [this] {
     if (!symbolShower)
       return;
@@ -169,6 +162,8 @@ void UICalculator::createUtilityAndOperatorButtons() {
     cur.chop(1);
     symbolShower->setText(cur);
   });
+  connect(btnCE, &QPushButton::clicked, this,
+          [this] { onClearEntryPressed(); });
   connect(btnAdd, &QPushButton::clicked, this,
           [this] { onOperatorPressed(0); });
   connect(btnSub, &QPushButton::clicked, this,
@@ -177,10 +172,8 @@ void UICalculator::createUtilityAndOperatorButtons() {
           [this] { onOperatorPressed(2); });
   connect(btnDiv, &QPushButton::clicked, this,
           [this] { onOperatorPressed(3); });
-  connect(btnDec, &QPushButton::clicked, this, [this] { onBasePressed(0); });
-  connect(btnHex, &QPushButton::clicked, this, [this] { onBasePressed(1); });
-  connect(btnOct, &QPushButton::clicked, this, [this] { onBasePressed(2); });
-  connect(btnBin, &QPushButton::clicked, this, [this] { onBinPressed(); });
+  connect(btnConvert, &QPushButton::clicked, this,
+          [this] { onConvertPressed(); });
   connect(btnRan, &QPushButton::clicked, this, [this] { onRandomPressed(); });
   connect(btnEql, &QPushButton::clicked, this, [this] { onEqualsPressed(); });
 
@@ -194,6 +187,9 @@ void UICalculator::createUtilityAndOperatorButtons() {
 /// backspace, clear input, and trigger arithmetic operations or evaluation.
 void UICalculator::keyPressEvent(QKeyEvent *event) {
   switch (event->key()) {
+  case Qt::Key_Delete:
+    onClearEntryPressed();
+    break;
   case Qt::Key_0:
   case Qt::Key_1:
   case Qt::Key_2:
@@ -330,6 +326,13 @@ void UICalculator::onOperatorPressed(int opCode) {
     if (!engine_)
       return;
 
+    // If display is empty or non-numeric, normalize to "0" so we commit 0
+    if (symbolShower) {
+      const QString t = symbolShower->text().trimmed();
+      if (t.isEmpty() || t == "+" || t == "-" || t == "*" || t == "/")
+        symbolShower->setText("0");
+    }
+
     // Commit current display into the active operand
     commitCurrentNumber();
 
@@ -428,56 +431,6 @@ QString UICalculator::formatValue(long double v, int baseCode) const {
   }
 }
 
-/// @brief Handles base conversion button presses (Dec, Hex, Oct).
-/// @param baseCode The base code indicating which base conversion to perform
-/// (0=Dec, 1=Hex, 2=Oct).
-///
-/// Converts the current value displayed to the selected base and updates the
-/// display accordingly.
-void UICalculator::onBasePressed(int baseCode) {
-  if (!engine_ || !symbolShower)
-    return;
-  // Use current display as value1
-  bool ok = false;
-  double v = symbolShower->text().toDouble(&ok);
-  if (!ok)
-    return;
-  long double lv = static_cast<long double>(v);
-  engine_->clear();
-  engine_->setValue1(lv);
-  // Map baseCode to engine op
-  if (baseCode == 0)
-    engine_->setOp(Engine::Op::ToDec);
-  else if (baseCode == 1)
-    engine_->setOp(Engine::Op::ToHex);
-  else if (baseCode == 2)
-    engine_->setOp(Engine::Op::ToOct);
-  auto res = engine_->evaluate();
-  if (res.has_value()) {
-    symbolShower->setText(formatValue(*res, baseCode));
-  }
-}
-
-/// @brief Handle Binary conversion button.
-///
-/// Uses Engine::ToBin and shows the value formatted in base-2.
-void UICalculator::onBinPressed() {
-  if (!engine_ || !symbolShower)
-    return;
-  bool ok = false;
-  double v = symbolShower->text().toDouble(&ok);
-  if (!ok)
-    return;
-  long double lv = static_cast<long double>(v);
-  engine_->clear();
-  engine_->setValue1(lv);
-  engine_->setOp(Engine::Op::ToBin);
-  auto res = engine_->evaluate();
-  if (res.has_value()) {
-    symbolShower->setText(formatValue(*res, 3)); // binary baseCode=3
-  }
-}
-
 /// @brief Handle Random button.
 ///
 /// Uses Engine::Random, displays the generated value in decimal, and prepares
@@ -514,5 +467,87 @@ void UICalculator::onRandomPressed() {
       engine_->clear();      // start fresh with v1 only
       engine_->setValue1(value1_);
     }
+  }
+}
+
+/// @brief Convert current display value to Hex, Oct, Bin and show one's/two's
+/// complement.
+void UICalculator::onConvertPressed() {
+  if (!symbolShower)
+    return;
+
+  // Parse current display as signed 64-bit (decimal input)
+  bool ok = false;
+  long long n = symbolShower->text().toLongLong(&ok, 10);
+  if (!ok)
+    return;
+
+  // Representations
+  const QString dec = QString::number(n);
+  const QString hex = QString::number(n, 16).toUpper();
+  const QString oct = QString::number(n, 8);
+  const QString bin = QString::number(n, 2);
+
+  // Complements using the **minimum** bit-width needed to represent |n|
+  // Determine magnitude and bit-width (at least 1 bit)
+  unsigned long long mag = (n < 0) ? static_cast<unsigned long long>(-n)
+                                   : static_cast<unsigned long long>(n);
+  unsigned width = (mag == 0ull) ? 1u : 0u;
+  while ((1ull << width) <= mag)
+    ++width;
+
+  // Always add one extra bit for clarity in complement representation
+  ++width;
+
+  const unsigned long long mask =
+      (width >= 64u) ? ~0ull : ((1ull << width) - 1ull);
+
+  // One's and two's complement of the magnitude within that width
+  unsigned long long ones = (~mag) & mask;
+  unsigned long long twos = (ones + 1ull) & mask;
+
+  const QString onesBin = QString::number(static_cast<qulonglong>(ones), 2)
+                              .rightJustified(static_cast<int>(width), '0');
+  const QString twosBin = QString::number(static_cast<qulonglong>(twos), 2)
+                              .rightJustified(static_cast<int>(width), '0');
+
+  // Show results in a dialog (keeps display clean)
+  QString msg;
+  msg += "Dec:  " + dec + "\n";
+  msg += "Hex:  " + hex + "\n";
+  msg += "Oct:  " + oct + "\n";
+  msg += "Bin:  " + bin + "\n";
+  msg += QString("One's Complement (%1-bit):\n").arg(width) + onesBin + "\n";
+  msg += QString("Two's Complement (%1-bit):\n").arg(width) + twosBin + "\n";
+
+  QMessageBox::information(this, "Conversions", msg);
+}
+
+/// @brief Clear display and full calculation state (UI + Engine).
+void UICalculator::onClearPressed() {
+  qDebug() << "[UICalculator] ENTER onClearPressed()";
+  if (symbolShower)
+    symbolShower->setText("0");
+  value1_ = 0.0L;
+  value2_ = 0.0L;
+  enteringFirst_ = true;
+  if (engine_)
+    engine_->clear(); // <- important: erases operators and flags!.
+  qDebug() << "[UICalculator] EXIT onClearPressed() state reset";
+}
+
+/// @brief Clear only the current entry; keep operator and committed operands
+/// intact.
+void UICalculator::onClearEntryPressed() {
+  if (symbolShower)
+    symbolShower->setText("0");
+
+  // If entering the second operand, reset only value2_. If entering the first
+  // operand and it wasn't yet committed, reset value1_ scratch.
+  if (!enteringFirst_) {
+    value2_ = 0.0L;
+  } else {
+    // Do not touch engine_ state; previous committed v1 (if any) stays.
+    value1_ = 0.0L;
   }
 }

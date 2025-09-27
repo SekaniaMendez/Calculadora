@@ -5,6 +5,9 @@
  * This file implements the Engine class methods declared in engine.h.
  * It manages state for two operands and an operator, and provides
  * arithmetic operations, base passthrough, and evaluation dispatch.
+ *
+ * @author Giovanni Daniel Mendez Sanchez (B54354)
+ * @date 2025-09-24
  */
 
 #include "engine.h"
