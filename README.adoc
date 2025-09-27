@@ -41,7 +41,7 @@ a handheld calculator.
 * **UI built with Qt**:
 ** Digit buttons (0–9)
 ** Operator buttons (+, −, ×, ÷, =)
-** Utility buttons (Clr, Back, CE)
+** Utility buttons (Clear, Back, CE)
 ** Base conversion buttons (Dec, Hex, Oct, Bin)
 ** Random (Rnd) button with optional maximum value input (default 0–999999)
 
@@ -108,7 +108,7 @@ cmake --build build
 * Use `Dec`, `Hex`, `Oct`, or `Bin` to convert the current number to that base.
 * Use `Rnd` to generate a random number.
 
-* Use `Clr` to reset the calculator or `Back` to remove the last character.
+* Use `Clear` to reset the calculator or `Back` to remove the last character.
 
 == Video Demostration
 The following video demonstrates the calculator in action and what you will see in the debug window
