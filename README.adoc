@@ -14,6 +14,11 @@ This project implements a cross-platform calculator using **C++** and **Qt Widge
 It provides a graphical user interface (`UICalculator`) and a calculation engine
 (`Engine`) separated into distinct modules for clarity and maintainability.
 
+[NOTE]
+====
+This calculator has been tested successfully on **macOS (Apple Silicon)**, **Ubuntu 22.04**, and **Windows 11**, ensuring full cross‑platform compatibility.
+====
+
 image::Ejemplo.png[Calculator Example,align=center,width=400]
 == Documentation
 
